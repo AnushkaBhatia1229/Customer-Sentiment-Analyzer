@@ -10,7 +10,7 @@ function App() {
   const fetchHistory = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/sentiment/history"
+        "https://customer-sentiment-analyzer-3off.onrender.com/api/sentiment/analyze"
       );
       setHistory(res.data);
     } catch (error) {

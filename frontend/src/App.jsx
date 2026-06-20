@@ -1,26 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 
 function App() {
   const [text, setText] = useState("");
   const [result, setResult] = useState("");
-  const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const fetchHistory = async () => {
-    try {
-      const res = await axios.get(
-        "https://customer-sentiment-analyzer-3off.onrender.com/api/sentiment/analyze"
-      );
-      setHistory(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchHistory();
-  }, []);
 
   const analyzeSentiment = async () => {
     if (!text.trim()) {
@@ -32,13 +16,11 @@ function App() {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/sentiment/analyze",
+        "https://customer-sentiment-analyzer-3off.onrender.com/api/sentiment/analyze",
         { text }
       );
 
       setResult(res.data.sentiment);
-      setText("");
-      fetchHistory();
     } catch (error) {
       console.error(error);
       alert("Error analyzing sentiment");
@@ -47,39 +29,40 @@ function App() {
     setLoading(false);
   };
 
-  const positiveCount = history.filter(
-    (item) => item.sentiment === "Positive"
-  ).length;
-
-  const negativeCount = history.filter(
-    (item) => item.sentiment === "Negative"
-  ).length;
-
-  const neutralCount = history.filter(
-    (item) => item.sentiment === "Neutral"
-  ).length;
+  const clearText = () => {
+    setText("");
+    setResult("");
+  };
 
   return (
     <div
       style={{
         minHeight: "100vh",
         background:
-          "linear-gradient(135deg, #0f172a, #182c64, #4068bf)",
-        padding: "30px",
-        color: "white",
+          "linear-gradient(135deg,#0f172a,#1e3a8a,#2563eb)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: "20px",
         fontFamily: "Arial",
       }}
     >
       <div
         style={{
-          maxWidth: "1000px",
-          margin: "auto",
+          width: "850px",
+          background: "rgba(255,255,255,0.12)",
+          backdropFilter: "blur(20px)",
+          borderRadius: "25px",
+          padding: "35px",
+          color: "white",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
         }}
       >
         <h1
           style={{
             textAlign: "center",
             fontSize: "42px",
+            marginBottom: "10px",
           }}
         >
           💬 Customer Sentiment Analyzer
@@ -88,98 +71,65 @@ function App() {
         <p
           style={{
             textAlign: "center",
-            color: "#91979e",
+            color: "#d1d5db",
+            marginBottom: "30px",
           }}
         >
           AI Powered Customer Feedback Analysis Dashboard
         </p>
 
-        {/* Statistics Cards */}
+        <textarea
+          rows="7"
+          placeholder="Write customer review here..."
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "15px",
+            borderRadius: "15px",
+            border: "none",
+            outline: "none",
+            fontSize: "16px",
+            resize: "none",
+          }}
+        />
+
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3,1fr)",
-            gap: "15px",
-            marginTop: "30px",
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: "10px",
+            color: "#cbd5e1",
           }}
         >
-          <div
-            style={{
-              background: "#237441",
-              padding: "20px",
-              borderRadius: "15px",
-              textAlign: "center",
-            }}
-          >
-            <h2>{positiveCount}</h2>
-            <p>😊 Positive</p>
-          </div>
-
-          <div
-            style={{
-              background: "#6a1010",
-              padding: "20px",
-              borderRadius: "15px",
-              textAlign: "center",
-            }}
-          >
-            <h2>{negativeCount}</h2>
-            <p>😞 Negative</p>
-          </div>
-
-          <div
-            style={{
-              background: "#d7b95e",
-              padding: "20px",
-              borderRadius: "15px",
-              textAlign: "center",
-              color: "black",
-            }}
-          >
-            <h2>{neutralCount}</h2>
-            <p>😐 Neutral</p>
-          </div>
+          <span>Characters: {text.length}</span>
+          <span>
+            Words:{" "}
+            {text.trim() === ""
+              ? 0
+              : text.trim().split(/\s+/).length}
+          </span>
         </div>
 
-        {/* Analyzer Card */}
         <div
           style={{
-            marginTop: "30px",
-            background: "rgba(45, 32, 32, 0.1)",
-            padding: "25px",
-            borderRadius: "20px",
-            backdropFilter: "blur(15px)",
+            display: "flex",
+            gap: "15px",
+            marginTop: "25px",
           }}
         >
-          <textarea
-            rows="5"
-            placeholder="Enter customer review..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "15px",
-              borderRadius: "12px",
-              fontSize: "16px",
-              border: "none",
-              outline: "none",
-            }}
-          />
-
-          <br />
-          <br />
-
           <button
             onClick={analyzeSentiment}
             style={{
-              background: "#051226",
-              color: "white",
+              flex: 1,
+              padding: "14px",
+              borderRadius: "12px",
               border: "none",
-              padding: "12px 25px",
-              borderRadius: "10px",
-              cursor: "pointer",
+              background: "#2563eb",
+              color: "white",
               fontSize: "16px",
               fontWeight: "bold",
+              cursor: "pointer",
             }}
           >
             {loading
@@ -187,76 +137,106 @@ function App() {
               : "🚀 Analyze Sentiment"}
           </button>
 
-          {result && (
-            <div
-              style={{
-                marginTop: "20px",
-                padding: "15px",
-                borderRadius: "12px",
-                textAlign: "center",
-                fontWeight: "bold",
-                fontSize: "22px",
-                background:
-                  result === "Positive"
-                    ? "#0a4821"
-                    : result === "Negative"
-                    ? "#7c0f0f"
-                    : "#a98c34",
-              }}
-            >
-              {result === "Positive" && "😊 Positive"}
-              {result === "Negative" && "😞 Negative"}
-              {result === "Neutral" && "😐 Neutral"}
-            </div>
-          )}
-        </div>
-
-        {/* Review History */}
-        <div
-          style={{
-            marginTop: "30px",
-            background: "rgba(255,255,255,0.1)",
-            padding: "25px",
-            borderRadius: "20px",
-          }}
-        >
-          <h2>📜 Review History</h2>
-
-          <table
+          <button
+            onClick={clearText}
             style={{
-              width: "100%",
-              marginTop: "15px",
-              borderCollapse: "collapse",
+              flex: 1,
+              padding: "14px",
+              borderRadius: "12px",
+              border: "none",
+              background: "#ef4444",
+              color: "white",
+              fontSize: "16px",
+              fontWeight: "bold",
+              cursor: "pointer",
             }}
           >
-            <thead>
-              <tr>
-                <th style={{ padding: "10px" }}>Review</th>
-                <th style={{ padding: "10px" }}>Sentiment</th>
-              </tr>
-            </thead>
+            🗑 Clear
+          </button>
+        </div>
 
-            <tbody>
-              {history.map((item) => (
-                <tr key={item._id}>
-                  <td style={{ padding: "10px" }}>{item.text}</td>
-                  <td style={{ padding: "10px" }}>
-                    {item.sentiment}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {result && (
+          <div
+            style={{
+              marginTop: "30px",
+              padding: "20px",
+              borderRadius: "15px",
+              textAlign: "center",
+              fontSize: "28px",
+              fontWeight: "bold",
+              transition: "0.3s",
+              background:
+                result === "Positive"
+                  ? "#16a34a"
+                  : result === "Negative"
+                  ? "#dc2626"
+                  : "#eab308",
+              color:
+                result === "Neutral"
+                  ? "black"
+                  : "white",
+            }}
+          >
+            {result === "Positive" && "😊 Positive"}
+            {result === "Negative" && "😞 Negative"}
+            {result === "Neutral" && "😐 Neutral"}
+          </div>
+        )}
+
+        <div
+          style={{
+            marginTop: "35px",
+            display: "grid",
+            gridTemplateColumns: "repeat(3,1fr)",
+            gap: "15px",
+          }}
+        >
+          <div
+            style={{
+              background: "#16a34a",
+              padding: "20px",
+              borderRadius: "15px",
+              textAlign: "center",
+            }}
+          >
+            <h2>😊</h2>
+            <p>Positive Reviews</p>
+          </div>
+
+          <div
+            style={{
+              background: "#dc2626",
+              padding: "20px",
+              borderRadius: "15px",
+              textAlign: "center",
+            }}
+          >
+            <h2>😞</h2>
+            <p>Negative Reviews</p>
+          </div>
+
+          <div
+            style={{
+              background: "#eab308",
+              color: "black",
+              padding: "20px",
+              borderRadius: "15px",
+              textAlign: "center",
+            }}
+          >
+            <h2>😐</h2>
+            <p>Neutral Reviews</p>
+          </div>
         </div>
 
         <p
           style={{
             textAlign: "center",
-            marginTop: "30px",
+            marginTop: "35px",
             color: "#cbd5e1",
           }}
         >
-          Developed by Anushka Bhatia
+          Developed by Anushka Bhatia | BCA AIML
         </p>
       </div>
     </div>
